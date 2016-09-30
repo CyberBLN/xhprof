@@ -264,7 +264,12 @@ CREATE TABLE `details` (
     $query = "SELECT * FROM `details` WHERE `id` = '$run_id'";
     $resultSet = $this->db->query($query);
     $data = $this->db->getNextAssoc($resultSet);
-    
+
+    // can't find specified data
+    if (empty($data)) {
+        return array(null, null);
+    }
+
     //The Performance data is compressed lightly to avoid max row length
 	if (!isset($GLOBALS['_xhprof']['serializer']) || strtolower($GLOBALS['_xhprof']['serializer'] == 'php')) {
 		$contents = unserialize(gzuncompress($data['perfdata']));
@@ -300,7 +305,7 @@ CREATE TABLE `details` (
   */
   public function getUrlStats($data)
   {
-      $data['select'] = '`id`, '.$this->db->unixTimestamp(`timestamp`).' as `timestamp`, `pmu`, `wt`, `cpu`';   
+      $data['select'] = '`id`, '.$this->db->unixTimestamp('timestamp').' as `timestamp`, `pmu`, `wt`, `cpu`';
       $rs = $this->getRuns($data);
       return $rs;
   }
@@ -423,9 +428,9 @@ CREATE TABLE `details` (
 		}
         
         
-	$sql['pmu'] = isset($xhprof_data['main()']['pmu']) ? $xhprof_data['main()']['pmu'] : '';
- 	$sql['wt']  = isset($xhprof_data['main()']['wt'])  ? $xhprof_data['main()']['wt']  : '';
-	$sql['cpu'] = isset($xhprof_data['main()']['cpu']) ? $xhprof_data['main()']['cpu'] : '';        
+	$sql['pmu'] = isset($xhprof_data['main()']['pmu']) ? $xhprof_data['main()']['pmu'] : 0;
+ 	$sql['wt']  = isset($xhprof_data['main()']['wt'])  ? $xhprof_data['main()']['wt']  : 0;
+	$sql['cpu'] = isset($xhprof_data['main()']['cpu']) ? $xhprof_data['main()']['cpu'] : 0;        
 
 
 		// The value of 2 seems to be light enugh that we're not killing the server, but still gives us lots of breathing room on 
